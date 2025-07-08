@@ -1,16 +1,13 @@
 import { computed, effect, Injectable, signal } from '@angular/core';
 import { ResumoFinanceiro, Transacao } from '../models/finance';
+import { DatabaseService } from './database.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FinanceService {
-  private chaveArmazenamento = 'finance-app-data-angular';
-
-  // Sinal gravável para armazenar a lista de transações
   transacoes = signal<Transacao[]>([]);
 
-  // Sinais computados para cálculos financeiros
   totalReceitas = computed(() =>
     this.transacoes()
       .filter((t) => t.tipo === 'receita')
@@ -29,7 +26,6 @@ export class FinanceService {
       .reduce((soma, t) => soma + t.valor, 0)
   );
 
-  // Resumo financeiro computado automaticamente
   resumo = computed<ResumoFinanceiro>(() => ({
     totalReceitas: this.totalReceitas(),
     totalDespesasFixas: this.totalDespesasFixas(),
@@ -40,39 +36,26 @@ export class FinanceService {
       this.totalDespesasVariaveis(),
   }));
 
-  constructor() {
-    // Carrega dados salvos do localStorage na inicialização
-    const dadosSalvos = localStorage.getItem(this.chaveArmazenamento);
-    if (dadosSalvos) {
-      this.transacoes.set(JSON.parse(dadosSalvos));
-    }
-
-    // Efeito colateral: salva automaticamente no localStorage quando as transações mudam
-    effect(() => {
-      localStorage.setItem(
-        this.chaveArmazenamento,
-        JSON.stringify(this.transacoes())
-      );
+  constructor(private databaseService: DatabaseService) {
+    this.databaseService.whenInitialized().subscribe(initialized => {
+      if (initialized) {
+        this.carregarTransacoes();
+      }
     });
   }
 
-  /**
-   * Adiciona uma nova transação à lista
-   * @param transacao Dados da transação (sem ID, que será gerado automaticamente)
-   */
-  adicionarTransacao(transacao: Omit<Transacao, 'id'>) {
-    const novaTransacao: Transacao = {
-      ...transacao,
-      id: Date.now().toString(), // Gera um ID único baseado no timestamp
-    };
-    this.transacoes.update((anterior) => [...anterior, novaTransacao]);
+  private carregarTransacoes() {
+    const transacoes = this.databaseService.getTransactions();
+    this.transacoes.set(transacoes);
   }
 
-  /**
-   * Remove uma transação pelo ID
-   * @param id ID da transação a ser removida
-   */
+  adicionarTransacao(transacao: Omit<Transacao, 'id'>) {
+    this.databaseService.addTransaction(transacao);
+    this.carregarTransacoes();
+  }
+
   excluirTransacao(id: string) {
-    this.transacoes.update((anterior) => anterior.filter((t) => t.id !== id));
+    this.databaseService.deleteTransaction(id);
+    this.carregarTransacoes();
   }
 }
