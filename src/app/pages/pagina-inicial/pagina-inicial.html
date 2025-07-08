@@ -1,0 +1,59 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+  <app-header />
+
+  <main class="container mx-auto px-4 py-8">
+    <app-cartao-resumo-financeiro [resumo]="servicoFinanceiro.resumo()" />
+
+    <div class="mb-8">
+      <div class="flex flex-wrap gap-2 mb-6">
+        <button
+          (click)="abaAtiva.set('visaoGeral')"
+          [ngClass]="
+            abaAtiva() === 'visaoGeral'
+              ? 'bg-blue-600 text-white shadow-lg'
+              : 'bg-white/80 text-gray-700 hover:bg-white hover:shadow-md'
+          "
+          class="flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all"
+        >
+          <span>📊</span> Visão Geral
+        </button>
+        <!-- Outros botões de abas podem ser adicionados aqui -->
+      </div>
+
+      <button
+        (click)="mostrarFormulario.set(true)"
+        class="finance-button flex items-center gap-2"
+      >
+        Nova Transação
+      </button>
+    </div>
+
+    <div class="animate-fade-in">
+      @switch (abaAtiva()) { @case ('visaoGeral') {
+      <app-lista-de-transacoes
+        [transacoes]="servicoFinanceiro.transacoes()"
+        [titulo]="'Transações Recentes'"
+        [mensagemVazia]="
+          'Nenhuma transação encontrada. Adicione sua primeira transação!'
+        "
+        (excluir)="onExcluirTransacao($event)"
+      />
+      } @case ('receitas') {
+      <!-- Conteúdo para receitas -->
+      } @case ('gastosFixos') {
+      <!-- Conteúdo para gastos fixos -->
+      } @case ('gastosVariaveis') {
+      <!-- Conteúdo para gastos variáveis -->
+      } @case ('graficos') {
+      <!-- Conteúdo para gráficos -->
+      } }
+    </div>
+  </main>
+
+  @if (mostrarFormulario()) {
+  <app-formulario-de-transacoes
+    (fechar)="mostrarFormulario.set(false)"
+    (submeter)="onSubmeterFormulario($event)"
+  />
+  }
+</div>

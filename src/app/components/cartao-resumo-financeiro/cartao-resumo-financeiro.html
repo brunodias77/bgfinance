@@ -1,0 +1,72 @@
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="finance-card p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-600">Receitas</p>
+        <p class="text-2xl font-bold text-green-600">
+          {{ resumo.totalReceitas | currency : "BRL" : "symbol" : "1.2-2" }}
+        </p>
+      </div>
+      <div
+        class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center"
+      ></div>
+    </div>
+  </div>
+
+  <div class="finance-card p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-600">Despesas Fixas</p>
+        <p class="text-2xl font-bold text-amber-600">
+          {{
+            resumo.totalDespesasFixas | currency : "BRL" : "symbol" : "1.2-2"
+          }}
+        </p>
+      </div>
+      <div
+        class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center"
+      ></div>
+    </div>
+  </div>
+
+  <div class="finance-card p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-600">Despesas Variáveis</p>
+        <p class="text-2xl font-bold text-purple-600">
+          {{
+            resumo.totalDespesasVariaveis
+              | currency : "BRL" : "symbol" : "1.2-2"
+          }}
+        </p>
+      </div>
+      <div
+        class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center"
+      ></div>
+    </div>
+  </div>
+
+  <div class="finance-card p-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-sm font-medium text-gray-600">Saldo</p>
+        <p
+          class="text-2xl font-bold"
+          [ngClass]="{
+            'text-green-600': resumo.saldo >= 0,
+            'text-red-600': resumo.saldo < 0
+          }"
+        >
+          {{ resumo.saldo | currency : "BRL" : "symbol" : "1.2-2" }}
+        </p>
+      </div>
+      <div
+        class="w-12 h-12 rounded-full flex items-center justify-center"
+        [ngClass]="{
+          'bg-green-100': resumo.saldo >= 0,
+          'bg-red-100': resumo.saldo < 0
+        }"
+      ></div>
+    </div>
+  </div>
+</div>
